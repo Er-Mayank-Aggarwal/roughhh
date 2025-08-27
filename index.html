@@ -1,144 +1,51 @@
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE html>
+<html>
 <head>
-  <title>GLB + Location Test</title>
+  <title>4 Feet Radius Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      height: 100%;
+    #map {
+      height: 100vh;
       width: 100%;
-      background: black;
-    }
-
-    .container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    #videoElement {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 1;
-    }
-
-    model-viewer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-    }
-
-    #locationDisplay {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-family: monospace;
-      z-index: 3;
-    }
-
-    #message {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 28px;
-      font-weight: bold;
-      color: yellow;
-      text-shadow: 2px 2px 5px black;
-      display: none;
-      z-index: 4;
     }
   </style>
-  <!-- Google Model Viewer -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
-
 <body>
-  <div class="container">
-    <!-- Fullscreen Back Camera -->
-    <video autoplay playsinline id="videoElement"></video>
-
-    <!-- GLB Model Overlay -->
-    <model-viewer id="glbModel" src="WaterBottle.glb" auto-rotate camera-controls disable-zoom></model-viewer>
-
-    <!-- Text Message -->
-    <div id="message">🎉 You are inside the target zone!</div>
-  </div>
-
-  <!-- Live Location -->
-  <div id="locationDisplay">📍 Lat: -- , Lng: --</div>
+  <div id="map"></div>
 
   <script>
-    var video = document.querySelector("#videoElement");
-    var locationDisplay = document.getElementById("locationDisplay");
-    var message = document.getElementById("message");
+    // Your location
+    var lat = 26.2708;
+    var lng = 73.0344;
 
-    // Camera (Back Camera)
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: "environment" } }
-      })
-        .then(function (stream) {
-          video.srcObject = stream;
-        })
-        .catch(function (error) {
-          console.log("Back camera not available, using default.");
-          // fallback to front camera
-          navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-              video.srcObject = stream;
-            })
-            .catch(err => console.log("Camera error:", err));
-        });
-    } else {
-      console.log("Camera not supported on this device/browser.");
-    }
+    // Create map
+    var map = L.map('map').setView([lat, lng], 20);
 
-    // Geolocation
-    if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(function (position) {
-        var latitude = position.coords.latitude;
-        var longitude = position.coords.longitude;
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Update live lat/lng
-        locationDisplay.innerText = `📍 Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
+    // Add marker at location
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup("📍 Your Location")
+      .openPopup();
 
-        // Define allowed range
-        const minLat = 26.27;
-        const maxLat = 26.28;
-        const minLong = 73.03;
-        const maxLong = 73.04;
-
-        // Check if within range
-        if (latitude >= minLat && latitude <= maxLat &&
-          longitude >= minLong && longitude <= maxLong) {
-          message.style.display = "block";
-        } else {
-          message.style.display = "none";
-        }
-
-      }, function (error) {
-        locationDisplay.innerText = "⚠️ Please enable GPS to continue.";
-      });
-    } else {
-      locationDisplay.innerText = "⚠️ Geolocation not supported.";
-    }
+    // Add circle with 4 feet radius (~1.22 meters)
+    L.circle([lat, lng], {
+      radius: 1.22,
+      color: "red",
+      fillColor: "#f03",
+      fillOpacity: 0.4
+    }).addTo(map);
   </script>
 </body>
 </html>
