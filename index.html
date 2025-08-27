@@ -76,7 +76,7 @@
                     const refLat = refLatArray[i];
                     const refLong = refLongArray[i];
                     const modelID = 'model'+(i+1);
-                    if (Math.abs(latitude-refLat)<0.00009 && Math.abs(longitude-refLong)<0.00009) 
+                    if (Math.abs(latitude-refLat)<0.0009 && Math.abs(longitude-refLong)<0.0009) 
                         setDisplay(modelID,'block');
                     else setDisplay(modelID,'none');
                 }
