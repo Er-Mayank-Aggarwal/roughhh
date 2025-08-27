@@ -4,43 +4,58 @@
 <head>
     <title>3D Test</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .coords {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: cyan;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        
         <div class="centered-element">
-            <video autoplay="true" id="videoElement" class="video-container">
-            </video>
-           <div id="model" style="overflow-x: hidden; position: relative;">
+            <video autoplay="true" id="videoElement" class="video-container"></video>
 
-    <!-- The 3D model -->
-    <model-viewer id="model1" class="modelviewer"
-        camera-controls touch-action="pan-y"
-        src="/WaterBottle.glb"
-        tone-mapping="commerce"
-        ar
-        alt="Please wait while the model is loading..."
-        style="background-color: unset; width:100%; height:500px;">
-    </model-viewer>
+            <div id="model" style="overflow-x: hidden; position: relative;">
+                <!-- The 3D model -->
+                <model-viewer id="model1" class="modelviewer"
+                    camera-controls touch-action="pan-y"
+                    src="/WaterBottle.glb"
+                    tone-mapping="commerce"
+                    ar
+                    alt="Please wait while the model is loading..."
+                    style="background-color: unset; width:100%; height:500px;">
+                </model-viewer>
 
-    <!-- Overlay text -->
-    <span style="
-        position: absolute;
-        text-align: center;
-        font-size: 28px;
-        font-weight: bold;
-        color: white;
-        text-shadow: 2px 2px 6px black;
-        line-height: 1.4;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    ">
-        Background<br>is visible<br>through<br>transparent<br>objects.
-    </span>
-</div>
+                <!-- Overlay text -->
+                <span style="
+                    position: absolute;
+                    text-align: center;
+                    font-size: 28px;
+                    font-weight: bold;
+                    color: white;
+                    text-shadow: 2px 2px 6px black;
+                    line-height: 1.4;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                ">
+                    Background<br>is visible<br>through<br>transparent<br>objects.
+                </span>
 
+                <!-- Live coordinates -->
+                <div id="coords" class="coords">Lat: -- , Long: --</div>
+            </div>
         </div>
     </div>
 
@@ -52,46 +67,50 @@
     <script>
         var video = document.querySelector("#videoElement");
 
+        // Camera stream
         if (navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-              video.srcObject = stream;
-            })
-            .catch(function (error) {
-              console.log("Something went wrong!");
-            });
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.log("Something went wrong!");
+                });
         }
 
+        // Geolocation
         if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition(function(position) {
-                // Success callback
+            navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
-                console.log(latitude,longitude);
-                
-                // Do something with latitude and longitude, such as displaying on the page
+
+                // ✅ Show live lat/long on screen
+                document.getElementById("coords").innerText =
+                    "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6);
+
                 const refLatArray = [26.270833];
                 const refLongArray = [73.028056];
-                for(let i=0;i<1;i++){
+                for (let i = 0; i < 1; i++) {
                     const refLat = refLatArray[i];
                     const refLong = refLongArray[i];
-                    const modelID = 'model'+(i+1);
-                    if (Math.abs(latitude-refLat)<0.0009 && Math.abs(longitude-refLong)<0.0009) 
-                        setDisplay(modelID,'block');
-                    else setDisplay(modelID,'none');
+                    const modelID = 'model' + (i + 1);
+
+                    if (Math.abs(latitude - refLat) < 0.0009 && Math.abs(longitude - refLong) < 0.0009)
+                        setDisplay(modelID, 'block');
+                    else
+                        setDisplay(modelID, 'none');
                 }
-                
-            }, function(error) {
-                // Error callback
+
+            }, function (error) {
                 alert("Error reading your current location. Please reload and try again after giving permission!");
             });
         } else {
             alert("Geolocation services are not available on this device!");
         }
 
-        function setDisplay(modelID,propValue) {
+        function setDisplay(modelID, propValue) {
             var div = document.getElementById(modelID);
-            div.style.display=propValue;
+            div.style.display = propValue;
         }
     </script>
 
