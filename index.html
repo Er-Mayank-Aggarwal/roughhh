@@ -3,7 +3,6 @@
 
 <head>
     <title>Location Test</title>
-    <link rel="stylesheet" href="style.css">
     <style>
         #locationDisplay {
             position: absolute;
@@ -37,7 +36,7 @@
         <div class="centered-element">
             <video autoplay="true" id="videoElement" class="video-container"></video>
             <!-- Text message instead of 3D model -->
-            <div id="message">🎉 You reached the target location!</div>
+            <div id="message">🎉 You are inside the target zone!</div>
         </div>
     </div>
 
@@ -49,15 +48,17 @@
         var locationDisplay = document.getElementById("locationDisplay");
         var message = document.getElementById("message");
 
-        // Camera (unchanged, as you asked)
-        if (navigator.mediaDevices.getUserMedia) {
+        // Camera
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function (stream) {
                     video.srcObject = stream;
                 })
                 .catch(function (error) {
-                    console.log("Something went wrong!");
+                    console.log("Camera access denied or not available.");
                 });
+        } else {
+            console.log("Camera not supported on this device/browser.");
         }
 
         // Geolocation
@@ -66,25 +67,28 @@
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
 
-                // Update live lat/lng on screen
+                // Update live lat/lng
                 locationDisplay.innerText = `📍 Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
 
-                // Reference location from your screenshot
-                const refLat = 26.2708333;  // 26°16'15"
-                const refLong = 73.0344444; // 73°2'4"
+                // Define allowed range
+                const minLat = 26.27;
+                const maxLat = 26.28;
+                const minLong = 73.03;
+                const maxLong = 73.04;
 
-                // Check if within ~10 meters
-                if (Math.abs(latitude - refLat) < 0.00009 && Math.abs(longitude - refLong) < 0.00009) {
+                // Check if within range
+                if (latitude >= minLat && latitude <= maxLat &&
+                    longitude >= minLong && longitude <= maxLong) {
                     message.style.display = "block";
                 } else {
                     message.style.display = "none";
                 }
 
             }, function (error) {
-                locationDisplay.innerText = "⚠️ Error reading location. Please allow GPS.";
+                locationDisplay.innerText = "⚠️ Please enable GPS to continue.";
             });
         } else {
-            locationDisplay.innerText = "⚠️ Geolocation not available";
+            locationDisplay.innerText = "⚠️ Geolocation not supported.";
         }
     </script>
 
