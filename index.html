@@ -16,6 +16,19 @@
             text-align: center;
             display: none;
         }
+
+        .coords {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: cyan;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -24,6 +37,7 @@
         <div class="centered-element">
             <video autoplay="true" id="videoElement" class="video-container"></video>
             <div id="message" class="centered-text">You got it ✅</div>
+            <div id="coords" class="coords">Lat: --, Long: --</div>
         </div>
     </div>
 
@@ -47,14 +61,17 @@
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
-                console.log("Lat:", latitude, "Long:", longitude);
+
+                // Show live coordinates
+                document.getElementById("coords").innerText =
+                    "Lat: " + latitude.toFixed(6) + ", Long: " + longitude.toFixed(6);
 
                 // Reference coordinates (26°16'16" N, 73°1'38" E)
                 const refLat = 26.271111;
                 const refLong = 73.027222;
 
                 // Limit: ±1 minute = ±0.0167 degrees
-                const limit = 1 / 600; // 1 minute in degrees
+                const limit = 1 / 60;
 
                 if (Math.abs(latitude - refLat) < limit && Math.abs(longitude - refLong) < limit) {
                     setDisplay("message", "block");
