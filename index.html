@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>3D Test</title>
+    <title>Location Test</title>
     <link rel="stylesheet" href="style.css">
     <style>
         #locationDisplay {
@@ -17,6 +17,18 @@
             font-size: 16px;
             font-family: monospace;
         }
+
+        #message {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 28px;
+            font-weight: bold;
+            color: yellow;
+            text-shadow: 2px 2px 5px black;
+            display: none;
+        }
     </style>
 </head>
 
@@ -24,44 +36,31 @@
     <div class="container">
         <div class="centered-element">
             <video autoplay="true" id="videoElement" class="video-container"></video>
-
-            <div id="model" style="overflow-x: hidden;">
-                <model-viewer id="model1" class="modelviewer" camera-controls touch-action="pan-y" src="/WaterBottle.glb"
-                    tone-mapping="commerce" ar alt="Please wait while the model is loading..."
-                    style="background-color: unset;"></model-viewer>
-            </div>
+            <!-- Text message instead of 3D model -->
+            <div id="message">🎉 You reached the target location!</div>
         </div>
     </div>
 
     <!-- Live Location -->
     <div id="locationDisplay">📍 Lat: -- , Lng: --</div>
 
-    <!-- Loads model-viewer for modern browsers -->
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.js"></script>
-    <!-- Loads model-viewer for older browsers -->
-    <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
-
     <script>
         var video = document.querySelector("#videoElement");
         var locationDisplay = document.getElementById("locationDisplay");
+        var message = document.getElementById("message");
 
-        // Request camera (prefer back camera)
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { exact: "environment" } } // back camera
-            })
+        // Camera (unchanged, as you asked)
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function (stream) {
                     video.srcObject = stream;
                 })
                 .catch(function (error) {
-                    console.log("Camera access error: ", error);
-                    locationDisplay.innerText = "⚠️ Camera not supported";
+                    console.log("Something went wrong!");
                 });
-        } else {
-            locationDisplay.innerText = "⚠️ Camera not available";
         }
 
-        // GPS Watch
+        // Geolocation
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
@@ -70,35 +69,24 @@
                 // Update live lat/lng on screen
                 locationDisplay.innerText = `📍 Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
 
-                // Reference location (your compass screenshot)
-                const refLatArray = [26.2708833]; // 26°16'15.18"
-                const refLongArray = [73.0402667]; // 73°2'24.96"
+                // Reference location from your screenshot
+                const refLat = 26.2708333;  // 26°16'15"
+                const refLong = 73.0344444; // 73°2'4"
 
-                for (let i = 0; i < refLatArray.length; i++) {
-                    const refLat = refLatArray[i];
-                    const refLong = refLongArray[i];
-                    const modelID = 'model' + (i + 1);
-
-                    if (Math.abs(latitude - refLat) < 0.00009 && Math.abs(longitude - refLong) < 0.00009) {
-                        setDisplay(modelID, 'block');
-                    } else {
-                        setDisplay(modelID, 'none');
-                    }
+                // Check if within ~10 meters
+                if (Math.abs(latitude - refLat) < 0.00009 && Math.abs(longitude - refLong) < 0.00009) {
+                    message.style.display = "block";
+                } else {
+                    message.style.display = "none";
                 }
 
             }, function (error) {
-                locationDisplay.innerText = "⚠️ Error: Enable GPS and reload.";
+                locationDisplay.innerText = "⚠️ Error reading location. Please allow GPS.";
             });
         } else {
             locationDisplay.innerText = "⚠️ Geolocation not available";
         }
-
-        function setDisplay(modelID, propValue) {
-            var div = document.getElementById(modelID);
-            div.style.display = propValue;
-        }
     </script>
 
 </body>
-
 </html>
