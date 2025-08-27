@@ -17,6 +17,7 @@
             padding: 8px 15px;
             border-radius: 10px;
             text-align: center;
+            white-space: pre-line; /* ✅ Allows line breaks */
         }
     </style>
 </head>
@@ -53,7 +54,7 @@
                     Background<br>is visible<br>through<br>transparent<br>objects.
                 </span>
 
-                <!-- Live coordinates -->
+                <!-- Live coordinates + range -->
                 <div id="coords" class="coords">Lat: -- , Long: --</div>
             </div>
         </div>
@@ -78,27 +79,34 @@
                 });
         }
 
+        // Reference point (26°16′15″N, 73°1′41″E in decimal)
+        const refLat = 26.270833;
+        const refLong = 73.028056;
+        const limit = 1 / 60; // 1 minute = 0.0167°
+
+        const latMin = refLat - limit;
+        const latMax = refLat + limit;
+        const lonMin = refLong - limit;
+        const lonMax = refLong + limit;
+
         // Geolocation
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
 
-                // ✅ Show live lat/long on screen
+                // ✅ Show live lat/long and allowed range
                 document.getElementById("coords").innerText =
-                    "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6);
+                    "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6) +
+                    "\nRange → Lat: " + latMin.toFixed(4) + " – " + latMax.toFixed(4) +
+                    " | Long: " + lonMin.toFixed(4) + " – " + lonMax.toFixed(4);
 
-                const refLatArray = [26.270833];
-                const refLongArray = [73.028056];
-                for (let i = 0; i < 1; i++) {
-                    const refLat = refLatArray[i];
-                    const refLong = refLongArray[i];
-                    const modelID = 'model' + (i + 1);
-
-                    if (Math.abs(latitude - refLat) < 0.0009 && Math.abs(longitude - refLong) < 0.0009)
-                        setDisplay(modelID, 'block');
-                    else
-                        setDisplay(modelID, 'none');
+                // Toggle model visibility
+                if (latitude >= latMin && latitude <= latMax &&
+                    longitude >= lonMin && longitude <= lonMax) {
+                    setDisplay("model1", "block");
+                } else {
+                    setDisplay("model1", "none");
                 }
 
             }, function (error) {
@@ -115,5 +123,4 @@
     </script>
 
 </body>
-
 </html>
