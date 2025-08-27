@@ -1,95 +1,69 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Geo Text Test</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .video-container {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .center-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 10px black;
-            display: none; /* hidden by default */
-        }
-    </style>
+  <title>Geo Check</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #status {
+      font-size: 20px;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <video autoplay playsinline id="videoElement" class="video-container"></video>
-        <div id="message" class="center-text">Hii I am not this</div>
-    </div>
+  <h2>Location Checker</h2>
+  <p id="status">Checking your location...</p>
 
-    <script>
-        // Camera (back camera)
-        var video = document.querySelector("#videoElement");
-        if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { exact: "environment" } }
-            })
-            .then(function (stream) {
-                video.srcObject = stream;
-            })
-            .catch(function (error) {
-                console.log("Camera not accessible!", error);
-            });
+  <script>
+    // Target location from your screenshot
+    const targetLat = 26.270833;  
+    const targetLng = 73.034444; 
+    const radiusFeet = 4;  
+    const radiusMeters = radiusFeet * 0.3048; // convert to meters
+
+    function toRad(Value) {
+      return Value * Math.PI / 180;
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // Radius of Earth in meters
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          const distance = getDistance(userLat, userLng, targetLat, targetLng);
+
+          if (distance <= radiusMeters) {
+            document.getElementById("status").innerText = "Hii, I am not this";
+          } else {
+            document.getElementById("status").innerText = 
+              "Outside range. Distance: " + distance.toFixed(2) + " m";
+          }
+        },
+        (error) => {
+          document.getElementById("status").innerText = "Error getting location!";
         }
-
-        // Geolocation
-        if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition(function(position) {
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
-
-                // Reference point (example: Jodhpur lat/long)
-                const refLat = 26.2706945;
-                const refLong = 73.0347749;
-
-                // Convert degrees to radians
-                function toRad(x) { return x * Math.PI / 180; }
-
-                // Haversine formula for distance (in meters)
-                function distance(lat1, lon1, lat2, lon2) {
-                    var R = 6378137; // Earth radius in meters
-                    var dLat = toRad(lat2 - lat1);
-                    var dLon = toRad(lon2 - lon1);
-                    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                            Math.sin(dLon/2) * Math.sin(dLon/2);
-                    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                    return R * c; // distance in meters
-                }
-
-                var dist = distance(latitude, longitude, refLat, refLong);
-
-                // Show text only if within 4 feet (~1.2m)
-                var msg = document.getElementById("message");
-                if (dist <= 1.2) {
-                    msg.style.display = "block";
-                } else {
-                    msg.style.display = "none";
-                }
-
-            }, function(error) {
-                alert("Error reading location. Please allow GPS!");
-            });
-        } else {
-            alert("Geolocation not supported!");
-        }
-    </script>
+      );
+    } else {
+      document.getElementById("status").innerText = "Geolocation not supported.";
+    }
+  </script>
 </body>
 </html>
