@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Camera Test</title>
+</head>
+<body>
+  <video id="video" autoplay playsinline muted width="100%" height="auto"></video>
+  <p id="error"></p>
+
+  <script>
+    const video = document.getElementById("video");
+    const errorMsg = document.getElementById("error");
+
+    async function initCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        errorMsg.innerText = "❌ Camera not supported in this browser/device.";
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" } // back camera on phone
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        errorMsg.innerText = "❌ Camera error: " + err.message;
+        console.error(err);
+      }
+    }
+
+    initCamera();
+  </script>
+</body>
+</html>
