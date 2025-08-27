@@ -47,13 +47,16 @@
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
-                console.log(latitude, longitude);
+                console.log("Lat:", latitude, "Long:", longitude);
 
-                // Reference coordinates (from your screenshot)
-                const refLat = 26.2682083;  // 26°16'5.55"
-                const refLong = 73.034931;  // 73°2'5.75"
+                // Reference coordinates (26°16'16" N, 73°1'38" E)
+                const refLat = 26.271111;
+                const refLong = 73.027222;
 
-                if (Math.abs(latitude - refLat) < 0.00009 && Math.abs(longitude - refLong) < 0.00009) {
+                // Limit: ±1 minute = ±0.0167 degrees
+                const limit = 1 / 60; // 1 minute in degrees
+
+                if (Math.abs(latitude - refLat) < limit && Math.abs(longitude - refLong) < limit) {
                     setDisplay("message", "block");
                 } else {
                     setDisplay("message", "none");
