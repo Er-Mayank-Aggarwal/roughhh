@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3D Water Bottle with Compass</title>
+  <title>3D Water Bottle with Compass & GPS</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      background: black;
       color: white;
+      background: black;
     }
     #hud {
       position: absolute;
@@ -18,8 +18,8 @@
       background: rgba(0,0,0,0.6);
       padding: 12px;
       border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 14px;
+      line-height: 1.5em;
     }
     canvas {
       display: block;
@@ -28,7 +28,10 @@
 </head>
 <body>
   <div id="hud">
-    🧭 <span id="heading">--</span>° (<span id="direction">--</span>)
+    <div>📍 Lat: <span id="lat">--</span></div>
+    <div>📍 Long: <span id="long">--</span></div>
+    <div>🧭 Heading: <span id="heading">--</span>°</div>
+    <div>Dir: <span id="direction">--</span></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -67,6 +70,23 @@
       animate();
     });
 
+    // ---------- GPS ----------
+    const latEl = document.getElementById("lat");
+    const longEl = document.getElementById("long");
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          latEl.textContent = pos.coords.latitude.toFixed(6);
+          longEl.textContent = pos.coords.longitude.toFixed(6);
+        },
+        (err) => console.warn(err),
+        { enableHighAccuracy: true }
+      );
+    } else {
+      latEl.textContent = "Not supported";
+      longEl.textContent = "Not supported";
+    }
+
     // ---------- Compass ----------
     const headingEl = document.getElementById("heading");
     const dirEl = document.getElementById("direction");
@@ -82,22 +102,20 @@
       return "NW";
     }
 
-    function updateHeading(deg) {
-      headingEl.textContent = deg.toFixed(1);
-      dirEl.textContent = degToDir(deg);
-    }
-
     window.addEventListener("deviceorientationabsolute", (event) => {
       if (event.alpha !== null) {
-        let heading = 360 - event.alpha;
-        updateHeading(heading);
+        let heading = 360 - event.alpha; // alpha is compass rotation
+        headingEl.textContent = heading.toFixed(1);
+        dirEl.textContent = degToDir(heading);
       }
     }, true);
 
+    // fallback
     window.addEventListener("deviceorientation", (event) => {
       if (event.alpha !== null) {
         let heading = 360 - event.alpha;
-        updateHeading(heading);
+        headingEl.textContent = heading.toFixed(1);
+        dirEl.textContent = degToDir(heading);
       }
     }, true);
 
