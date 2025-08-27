@@ -1,106 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <title>4 Feet Radius Check</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <style>
-    #map {
-      height: 100vh;
-      width: 100%;
-    }
-    #status {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 10px;
-      font-size: 18px;
-      font-family: monospace;
-      z-index: 1000;
-    }
-  </style>
+    <title>Geo Text Test</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .video-container {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 10px black;
+            display: none; /* hidden by default */
+        }
+    </style>
 </head>
 <body>
-  <div id="status">Waiting for location...</div>
-  <div id="map"></div>
+    <div class="container">
+        <video autoplay playsinline id="videoElement" class="video-container"></video>
+        <div id="message" class="center-text">Hii I am not this</div>
+    </div>
 
-  <script>
-    // Fixed target location
-    var targetLat = 26.2708;
-    var targetLng = 73.0344;
-    var radiusMeters = 1.22; // 4 feet ~ 1.22 meters
-
-    // Create map centered at target
-    var map = L.map('map').setView([targetLat, targetLng], 20);
-
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Target marker
-    L.marker([targetLat, targetLng]).addTo(map)
-      .bindPopup("🎯 Target Location")
-      .openPopup();
-
-    // Target circle
-    var circle = L.circle([targetLat, targetLng], {
-      radius: radiusMeters,
-      color: "red",
-      fillColor: "#f03",
-      fillOpacity: 0.4
-    }).addTo(map);
-
-    // Status div
-    var statusDiv = document.getElementById("status");
-
-    // Function to check distance
-    function checkDistance(userLat, userLng) {
-      var distance = map.distance([targetLat, targetLng], [userLat, userLng]);
-      console.log("Distance: " + distance + " meters");
-      if (distance <= radiusMeters) {
-        statusDiv.innerText = "✅ Hii I am inside this (within 4 feet)";
-        statusDiv.style.background = "green";
-      } else {
-        statusDiv.innerText = "❌ Hii I am not this (outside 4 feet)";
-        statusDiv.style.background = "red";
-      }
-    }
-
-    // Watch live position
-    if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(function(position) {
-        var userLat = position.coords.latitude;
-        var userLng = position.coords.longitude;
-
-        // Add/update user marker
-        if (window.userMarker) {
-          userMarker.setLatLng([userLat, userLng]);
-        } else {
-          window.userMarker = L.marker([userLat, userLng], {color: "blue"}).addTo(map)
-            .bindPopup("📍 You are here");
+    <script>
+        // Camera (back camera)
+        var video = document.querySelector("#videoElement");
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } }
+            })
+            .then(function (stream) {
+                video.srcObject = stream;
+            })
+            .catch(function (error) {
+                console.log("Camera not accessible!", error);
+            });
         }
 
-        // Check distance
-        checkDistance(userLat, userLng);
+        // Geolocation
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
 
-      }, function(error) {
-        statusDiv.innerText = "⚠️ Please enable GPS.";
-      });
-    } else {
-      statusDiv.innerText = "⚠️ Geolocation not supported.";
-    }
-  </script>
+                // Reference point (example: Jodhpur lat/long)
+                const refLat = 26.2706945;
+                const refLong = 73.0347749;
+
+                // Convert degrees to radians
+                function toRad(x) { return x * Math.PI / 180; }
+
+                // Haversine formula for distance (in meters)
+                function distance(lat1, lon1, lat2, lon2) {
+                    var R = 6378137; // Earth radius in meters
+                    var dLat = toRad(lat2 - lat1);
+                    var dLon = toRad(lon2 - lon1);
+                    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                            Math.sin(dLon/2) * Math.sin(dLon/2);
+                    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    return R * c; // distance in meters
+                }
+
+                var dist = distance(latitude, longitude, refLat, refLong);
+
+                // Show text only if within 4 feet (~1.2m)
+                var msg = document.getElementById("message");
+                if (dist <= 1.2) {
+                    msg.style.display = "block";
+                } else {
+                    msg.style.display = "none";
+                }
+
+            }, function(error) {
+                alert("Error reading location. Please allow GPS!");
+            });
+        } else {
+            alert("Geolocation not supported!");
+        }
+    </script>
 </body>
 </html>
