@@ -54,7 +54,7 @@
                 const refLong = 73.027222;
 
                 // Limit: ±1 minute = ±0.0167 degrees
-                const limit = 1 / 60; // 1 minute in degrees
+                const limit = 1 / 600; // 1 minute in degrees
 
                 if (Math.abs(latitude - refLat) < limit && Math.abs(longitude - refLong) < limit) {
                     setDisplay("message", "block");
