@@ -1,130 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <title>3D Water Bottle with Compass & GPS</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      color: white;
-      background: black;
-    }
-    #hud {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.6);
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.5em;
-    }
-    canvas {
-      display: block;
-    }
-  </style>
+    <title>3D Test</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div id="hud">
-    <div>📍 Lat: <span id="lat">--</span></div>
-    <div>📍 Long: <span id="long">--</span></div>
-    <div>🧭 Heading: <span id="heading">--</span>°</div>
-    <div>Dir: <span id="direction">--</span></div>
-  </div>
+    <div class="container">
+        
+        <div class="centered-element">
+            <video autoplay="true" id="videoElement" class="video-container">
+            </video>
+            <div id ="model" style="overflow-x: hidden;">
+                <!-- <span style="position: absolute; text-align: center; font-size: 100px; line-height: 100px; left: 50%; transform: translateX(-50%);">Background<br>is visible<br>through<br>transparent<br>objects.</span> -->
+                <model-viewer id="model1" class="modelviewer" camera-controls touch-action="pan-y" src="/WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
+                <!-- <model-viewer id="model2" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
+                <model-viewer id="model3" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
+                <model-viewer id="model4" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
+                <model-viewer id="model5" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
+                <model-viewer id="model6" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer> -->
+            </div>
+        </div>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Loads model-viewer for modern browsers -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.js"></script>
+    <!-- Loads model-viewer for older browsers -->
+    <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
 
-  <script>
-    // ---------- THREE.JS Scene ----------
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    <script>
+        var video = document.querySelector("#videoElement");
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 3;
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+              video.srcObject = stream;
+            })
+            .catch(function (error) {
+              console.log("Something went wrong!");
+            });
+        }
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition(function(position) {
+                // Success callback
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                console.log(latitude,longitude);
+                
+                // Do something with latitude and longitude, such as displaying on the page
+                const refLatArray = [26.2706945];
+                const refLongArray = [73.0347749];
+                for(let i=0;i<1;i++){
+                    const refLat = refLatArray[i];
+                    const refLong = refLongArray[i];
+                    const modelID = 'model'+(i+1);
+                    if (Math.abs(latitude-refLat)<0.00009 && Math.abs(longitude-refLong)<0.00009) 
+                        setDisplay(modelID,'block');
+                    else setDisplay(modelID,'none');
+                }
+                
+            }, function(error) {
+                // Error callback
+                alert("Error reading your current location. Please reload and try again after giving permission!");
+            });
+        } else {
+            alert("Geolocation services are not available on this device!");
+        }
 
-    // Light
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5,5,5).normalize();
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0x404040));
+        function setDisplay(modelID,propValue) {
+            var div = document.getElementById(modelID);
+            div.style.display=propValue;
+        }
+    </script>
 
-    // Load Water Bottle GLB
-    const loader = new THREE.GLTFLoader();
-    loader.load("WaterBottle.glb", function(gltf) {
-      const model = gltf.scene;
-      model.scale.set(2,2,2);
-      scene.add(model);
-
-      function animate() {
-        requestAnimationFrame(animate);
-        model.rotation.y += 0.01;
-        renderer.render(scene, camera);
-      }
-      animate();
-    });
-
-    // ---------- GPS ----------
-    const latEl = document.getElementById("lat");
-    const longEl = document.getElementById("long");
-    if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(
-        (pos) => {
-          latEl.textContent = pos.coords.latitude.toFixed(6);
-          longEl.textContent = pos.coords.longitude.toFixed(6);
-        },
-        (err) => console.warn(err),
-        { enableHighAccuracy: true }
-      );
-    } else {
-      latEl.textContent = "Not supported";
-      longEl.textContent = "Not supported";
-    }
-
-    // ---------- Compass ----------
-    const headingEl = document.getElementById("heading");
-    const dirEl = document.getElementById("direction");
-
-    function degToDir(deg) {
-      if (deg >= 337.5 || deg < 22.5) return "N";
-      if (deg >= 22.5 && deg < 67.5) return "NE";
-      if (deg >= 67.5 && deg < 112.5) return "E";
-      if (deg >= 112.5 && deg < 157.5) return "SE";
-      if (deg >= 157.5 && deg < 202.5) return "S";
-      if (deg >= 202.5 && deg < 247.5) return "SW";
-      if (deg >= 247.5 && deg < 292.5) return "W";
-      return "NW";
-    }
-
-    window.addEventListener("deviceorientationabsolute", (event) => {
-      if (event.alpha !== null) {
-        let heading = 360 - event.alpha; // alpha is compass rotation
-        headingEl.textContent = heading.toFixed(1);
-        dirEl.textContent = degToDir(heading);
-      }
-    }, true);
-
-    // fallback
-    window.addEventListener("deviceorientation", (event) => {
-      if (event.alpha !== null) {
-        let heading = 360 - event.alpha;
-        headingEl.textContent = heading.toFixed(1);
-        dirEl.textContent = degToDir(heading);
-      }
-    }, true);
-
-    // Handle Resize
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
 </body>
+
 </html>
