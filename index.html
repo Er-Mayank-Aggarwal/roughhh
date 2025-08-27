@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>4 Feet Radius Map</title>
+  <title>4 Feet Radius Check</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -16,36 +16,91 @@
       height: 100vh;
       width: 100%;
     }
+    #status {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-family: monospace;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
+  <div id="status">Waiting for location...</div>
   <div id="map"></div>
 
   <script>
-    // Your location
-    var lat = 26.2708;
-    var lng = 73.0344;
+    // Fixed target location
+    var targetLat = 26.2708;
+    var targetLng = 73.0344;
+    var radiusMeters = 1.22; // 4 feet ~ 1.22 meters
 
-    // Create map
-    var map = L.map('map').setView([lat, lng], 20);
+    // Create map centered at target
+    var map = L.map('map').setView([targetLat, targetLng], 20);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Add marker at location
-    L.marker([lat, lng]).addTo(map)
-      .bindPopup("📍 Your Location")
+    // Target marker
+    L.marker([targetLat, targetLng]).addTo(map)
+      .bindPopup("🎯 Target Location")
       .openPopup();
 
-    // Add circle with 4 feet radius (~1.22 meters)
-    L.circle([lat, lng], {
-      radius: 1.22,
+    // Target circle
+    var circle = L.circle([targetLat, targetLng], {
+      radius: radiusMeters,
       color: "red",
       fillColor: "#f03",
       fillOpacity: 0.4
     }).addTo(map);
+
+    // Status div
+    var statusDiv = document.getElementById("status");
+
+    // Function to check distance
+    function checkDistance(userLat, userLng) {
+      var distance = map.distance([targetLat, targetLng], [userLat, userLng]);
+      console.log("Distance: " + distance + " meters");
+      if (distance <= radiusMeters) {
+        statusDiv.innerText = "✅ Hii I am inside this (within 4 feet)";
+        statusDiv.style.background = "green";
+      } else {
+        statusDiv.innerText = "❌ Hii I am not this (outside 4 feet)";
+        statusDiv.style.background = "red";
+      }
+    }
+
+    // Watch live position
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(function(position) {
+        var userLat = position.coords.latitude;
+        var userLng = position.coords.longitude;
+
+        // Add/update user marker
+        if (window.userMarker) {
+          userMarker.setLatLng([userLat, userLng]);
+        } else {
+          window.userMarker = L.marker([userLat, userLng], {color: "blue"}).addTo(map)
+            .bindPopup("📍 You are here");
+        }
+
+        // Check distance
+        checkDistance(userLat, userLng);
+
+      }, function(error) {
+        statusDiv.innerText = "⚠️ Please enable GPS.";
+      });
+    } else {
+      statusDiv.innerText = "⚠️ Geolocation not supported.";
+    }
   </script>
 </body>
 </html>
