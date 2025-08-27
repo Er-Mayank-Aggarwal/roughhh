@@ -1,96 +1,144 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Location Test</title>
-    <style>
-        #locationDisplay {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: monospace;
-        }
+  <title>GLB + Location Test</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      background: black;
+    }
 
-        #message {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 28px;
-            font-weight: bold;
-            color: yellow;
-            text-shadow: 2px 2px 5px black;
-            display: none;
-        }
-    </style>
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #videoElement {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    model-viewer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    #locationDisplay {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: monospace;
+      z-index: 3;
+    }
+
+    #message {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      font-weight: bold;
+      color: yellow;
+      text-shadow: 2px 2px 5px black;
+      display: none;
+      z-index: 4;
+    }
+  </style>
+  <!-- Google Model Viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="centered-element">
-            <video autoplay="true" id="videoElement" class="video-container"></video>
-            <!-- Text message instead of 3D model -->
-            <div id="message">🎉 You are inside the target zone!</div>
-        </div>
-    </div>
+  <div class="container">
+    <!-- Fullscreen Back Camera -->
+    <video autoplay playsinline id="videoElement"></video>
 
-    <!-- Live Location -->
-    <div id="locationDisplay">📍 Lat: -- , Lng: --</div>
+    <!-- GLB Model Overlay -->
+    <model-viewer id="glbModel" src="WaterBottle.glb" auto-rotate camera-controls disable-zoom></model-viewer>
 
-    <script>
-        var video = document.querySelector("#videoElement");
-        var locationDisplay = document.getElementById("locationDisplay");
-        var message = document.getElementById("message");
+    <!-- Text Message -->
+    <div id="message">🎉 You are inside the target zone!</div>
+  </div>
 
-        // Camera
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    video.srcObject = stream;
-                })
-                .catch(function (error) {
-                    console.log("Camera access denied or not available.");
-                });
+  <!-- Live Location -->
+  <div id="locationDisplay">📍 Lat: -- , Lng: --</div>
+
+  <script>
+    var video = document.querySelector("#videoElement");
+    var locationDisplay = document.getElementById("locationDisplay");
+    var message = document.getElementById("message");
+
+    // Camera (Back Camera)
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: "environment" } }
+      })
+        .then(function (stream) {
+          video.srcObject = stream;
+        })
+        .catch(function (error) {
+          console.log("Back camera not available, using default.");
+          // fallback to front camera
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+              video.srcObject = stream;
+            })
+            .catch(err => console.log("Camera error:", err));
+        });
+    } else {
+      console.log("Camera not supported on this device/browser.");
+    }
+
+    // Geolocation
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(function (position) {
+        var latitude = position.coords.latitude;
+        var longitude = position.coords.longitude;
+
+        // Update live lat/lng
+        locationDisplay.innerText = `📍 Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
+
+        // Define allowed range
+        const minLat = 26.27;
+        const maxLat = 26.28;
+        const minLong = 73.03;
+        const maxLong = 73.04;
+
+        // Check if within range
+        if (latitude >= minLat && latitude <= maxLat &&
+          longitude >= minLong && longitude <= maxLong) {
+          message.style.display = "block";
         } else {
-            console.log("Camera not supported on this device/browser.");
+          message.style.display = "none";
         }
 
-        // Geolocation
-        if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition(function (position) {
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
-
-                // Update live lat/lng
-                locationDisplay.innerText = `📍 Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
-
-                // Define allowed range
-                const minLat = 26.27;
-                const maxLat = 26.28;
-                const minLong = 73.03;
-                const maxLong = 73.04;
-
-                // Check if within range
-                if (latitude >= minLat && latitude <= maxLat &&
-                    longitude >= minLong && longitude <= maxLong) {
-                    message.style.display = "block";
-                } else {
-                    message.style.display = "none";
-                }
-
-            }, function (error) {
-                locationDisplay.innerText = "⚠️ Please enable GPS to continue.";
-            });
-        } else {
-            locationDisplay.innerText = "⚠️ Geolocation not supported.";
-        }
-    </script>
-
+      }, function (error) {
+        locationDisplay.innerText = "⚠️ Please enable GPS to continue.";
+      });
+    } else {
+      locationDisplay.innerText = "⚠️ Geolocation not supported.";
+    }
+  </script>
 </body>
 </html>
