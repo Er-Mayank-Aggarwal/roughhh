@@ -22,12 +22,13 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: cyan;
             background: rgba(0, 0, 0, 0.5);
-            padding: 8px 15px;
+            padding: 10px 15px;
             border-radius: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -56,24 +57,34 @@
                 });
         }
 
+        // Reference coordinates (26°16'16" N, 73°1'38" E)
+        const refLat = 26.271111;
+        const refLong = 73.027222;
+
+        // Limit: ±1 minute = ±0.0167 degrees
+        const limit = 1 / 60;
+
+        // Bounding box values
+        const latMin = refLat - limit;
+        const latMax = refLat + limit;
+        const lonMin = refLong - limit;
+        const lonMax = refLong + limit;
+
         // Geolocation
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
 
-                // Show live coordinates
+                // Show live coordinates + allowed range
                 document.getElementById("coords").innerText =
-                    "Lat: " + latitude.toFixed(6) + ", Long: " + longitude.toFixed(6);
+                    "Lat: " + latitude.toFixed(6) + ", Long: " + longitude.toFixed(6) +
+                    "\nRange → Lat: " + latMin.toFixed(4) + " – " + latMax.toFixed(4) +
+                    " | Long: " + lonMin.toFixed(4) + " – " + lonMax.toFixed(4);
 
-                // Reference coordinates (26°16'16" N, 73°1'38" E)
-                const refLat = 26.271111;
-                const refLong = 73.027222;
-
-                // Limit: ±1 minute = ±0.0167 degrees
-                const limit = 1 / 60;
-
-                if (Math.abs(latitude - refLat) < limit && Math.abs(longitude - refLong) < limit) {
+                // Check if inside range
+                if (latitude >= latMin && latitude <= latMax &&
+                    longitude >= lonMin && longitude <= lonMax) {
                     setDisplay("message", "block");
                 } else {
                     setDisplay("message", "none");
