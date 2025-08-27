@@ -2,108 +2,19 @@
 <html>
 
 <head>
-    <title>AR Location Finder</title>
+    <title>Location Test</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        
-        .container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .centered-element {
+        .centered-text {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .video-container {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .message-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
-        }
-        
-        .success-message {
-            color: white;
-            font-size: 48px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
             font-weight: bold;
+            color: yellow;
             text-align: center;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 30px;
-            border-radius: 15px;
             display: none;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .instructions {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            font-size: 16px;
-        }
-        
-        .compass-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 100px;
-            height: 100px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
-        
-        .compass-direction {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .coordinates-display {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
         }
     </style>
 </head>
@@ -112,162 +23,53 @@
     <div class="container">
         <div class="centered-element">
             <video autoplay="true" id="videoElement" class="video-container"></video>
-            <div class="message-container">
-                <div id="successMessage" class="success-message">Hii you got it!</div>
-            </div>
-        </div>
-        <div class="instructions" id="instructions">
-            Searching for location... Please allow location access.
-        </div>
-        <div class="compass-container">
-            <div class="compass-direction" id="compassDirection">N</div>
-        </div>
-        <div class="coordinates-display" id="coordinatesDisplay">
-            Lat: --<br>Lng: --<br>Distance: --
+            <div id="message" class="centered-text">You got it ✅</div>
         </div>
     </div>
 
     <script>
+        // Use BACK camera instead of front
         var video = document.querySelector("#videoElement");
-        var instructions = document.getElementById("instructions");
-        var compassDirection = document.getElementById("compassDirection");
-        var coordinatesDisplay = document.getElementById("coordinatesDisplay");
-        
-        // Convert the provided coordinates to decimal format
-        // 26°16'15"N = 26 + 16/60 + 15/3600 = 26.2708333
-        // 73°00'24"E = 73 + 0/60 + 24/3600 = 73.0066667
-        const TARGET_LAT = 26.2708333;
-        const TARGET_LNG = 73.0066667;
-        
-        // Function to get back camera
-        function getBackCamera() {
-            // Prefer rear-facing camera if available
-            var constraints = {
-                video: {
-                    facingMode: { ideal: "environment" }
-                }
-            };
-            
-            // Try to get environment facing camera (back camera)
-            navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                video.srcObject = stream;
-                instructions.textContent = "Move to the target location to see the message!";
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } }
             })
-            .catch(function(error) {
-                // If environment facing fails, try with any camera
-                navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
+                .then(function (stream) {
                     video.srcObject = stream;
-                    instructions.textContent = "Move to the target location to see the message!";
                 })
-                .catch(function(error) {
-                    console.error("Error accessing camera:", error);
-                    instructions.textContent = "Camera access denied. Please allow camera access.";
+                .catch(function (error) {
+                    console.log("Camera access error:", error);
                 });
-            });
         }
-        
-        // Check for geolocation support
-        if ("geolocation" in navigator) {
-            instructions.textContent = "Waiting for location access...";
-            
-            // Request location permission
-            navigator.geolocation.watchPosition(
-                function(position) {
-                    // Success callback
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
-                    var accuracy = position.coords.accuracy; // Accuracy in meters
-                    
-                    // Calculate distance between current position and reference point
-                    function calculateDistance(lat1, lon1, lat2, lon2) {
-                        const R = 6371000; // Earth radius in meters
-                        const dLat = (lat2 - lat1) * Math.PI / 180;
-                        const dLon = (lon2 - lon1) * Math.PI / 180;
-                        const a = 
-                            Math.sin(dLat/2) * Math.sin(dLat/2) +
-                            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                            Math.sin(dLon/2) * Math.sin(dLon/2);
-                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                        const distance = R * c; // Distance in meters
-                        return distance;
-                    }
-                    
-                    const distance = calculateDistance(latitude, longitude, TARGET_LAT, TARGET_LNG);
-                    
-                    // Update coordinates display
-                    coordinatesDisplay.innerHTML = 
-                        `Lat: ${latitude.toFixed(6)}<br>Lng: ${longitude.toFixed(6)}<br>Distance: ${distance.toFixed(2)}m`;
-                    
-                    // 4 feet is approximately 1.22 meters
-                    // Show message if within 4 feet (1.22 meters) plus the accuracy margin
-                    if (distance < (1.22 + accuracy)) {
-                        document.getElementById("successMessage").style.display = "block";
-                        instructions.textContent = "You're at the target location!";
-                    } else {
-                        document.getElementById("successMessage").style.display = "none";
-                        instructions.textContent = "Move closer to the target location. You're " + 
-                                                  distance.toFixed(2) + " meters away.";
-                    }
-                },
-                function(error) {
-                    // Error callback
-                    console.error("Geolocation error:", error);
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            instructions.textContent = "Location access denied. Please enable location services.";
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            instructions.textContent = "Location information unavailable.";
-                            break;
-                        case error.TIMEOUT:
-                            instructions.textContent = "Location request timed out.";
-                            break;
-                        default:
-                            instructions.textContent = "An unknown error occurred with location services.";
-                            break;
-                    }
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 30000
-                }
-            );
-            
-            // Add compass functionality if available
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', function(event) {
-                    // Get compass heading
-                    var heading = event.alpha; // Compass heading in degrees
-                    
-                    // iOS uses different coordinate system
-                    if (typeof event.webkitCompassHeading !== "undefined") {
-                        heading = event.webkitCompassHeading;
-                    }
-                    
-                    // Update compass display
-                    if (heading !== null) {
-                        compassDirection.textContent = getCompassDirection(heading);
-                    }
-                });
-            }
-            
-            // Helper function to get compass direction from degrees
-            function getCompassDirection(degrees) {
-                const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-                const index = Math.round(degrees / 45) % 8;
-                return directions[index];
-            }
-            
-        } else {
-            instructions.textContent = "Geolocation is not supported by this browser.";
-        }
-        
-        // Initialize the camera when the page loads
-        window.onload = getBackCamera;
-    </script>
-</body>
 
+        // Geolocation
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition(function (position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                console.log(latitude, longitude);
+
+                // Reference coordinates (from your screenshot)
+                const refLat = 26.2682083;  // 26°16'5.55"
+                const refLong = 73.034931;  // 73°2'5.75"
+
+                if (Math.abs(latitude - refLat) < 0.00009 && Math.abs(longitude - refLong) < 0.00009) {
+                    setDisplay("message", "block");
+                } else {
+                    setDisplay("message", "none");
+                }
+            }, function (error) {
+                alert("Error reading your location. Please allow location permission.");
+            });
+        } else {
+            alert("Geolocation not available!");
+        }
+
+        function setDisplay(elementID, propValue) {
+            var div = document.getElementById(elementID);
+            div.style.display = propValue;
+        }
+    </script>
+
+</body>
 </html>
