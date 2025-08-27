@@ -5,49 +5,36 @@
     <title>3D Test</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .latlong-box {
+        #locationDisplay {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 14px;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 16px;
             font-family: monospace;
-        }
-        video {
-            width: 100%;
-            height: 100vh;
-            object-fit: cover;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-        }
-        model-viewer {
-            width: 100%;
-            height: 500px;
         }
     </style>
 </head>
 
 <body>
-    <div class="latlong-box" id="latlong">Lat: -- , Lng: --</div>
+    <div class="container">
+        <div class="centered-element">
+            <video autoplay="true" id="videoElement" class="video-container"></video>
 
-    <video autoplay playsinline id="videoElement"></video>
-
-    <div id="model">
-        <model-viewer id="model1" class="modelviewer" 
-            camera-controls 
-            touch-action="pan-y" 
-            src="/WaterBottle.glb" 
-            tone-mapping="commerce" 
-            ar 
-            alt="Please wait while the model is loading..."
-            style="background-color: unset;">
-        </model-viewer>
+            <div id="model" style="overflow-x: hidden;">
+                <model-viewer id="model1" class="modelviewer" camera-controls touch-action="pan-y" src="/WaterBottle.glb"
+                    tone-mapping="commerce" ar alt="Please wait while the model is loading..."
+                    style="background-color: unset;"></model-viewer>
+            </div>
+        </div>
     </div>
+
+    <!-- Live Location -->
+    <div id="locationDisplay">📍 Lat: -- , Lng: --</div>
 
     <!-- Loads model-viewer for modern browsers -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.js"></script>
@@ -55,62 +42,63 @@
     <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
 
     <script>
-        // === CAMERA (Back camera) ===
-        const video = document.querySelector("#videoElement");
+        var video = document.querySelector("#videoElement");
+        var locationDisplay = document.getElementById("locationDisplay");
 
+        // Request camera (prefer back camera)
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({
                 video: { facingMode: { exact: "environment" } } // back camera
             })
-            .then(function (stream) {
-                video.srcObject = stream;
-            })
-            .catch(function (error) {
-                console.log("Camera error:", error);
-                alert("Camera not supported on this device/browser.");
-            });
+                .then(function (stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.log("Camera access error: ", error);
+                    locationDisplay.innerText = "⚠️ Camera not supported";
+                });
         } else {
-            alert("Camera not supported on this device/browser.");
+            locationDisplay.innerText = "⚠️ Camera not available";
         }
 
-        // === LOCATION ===
+        // GPS Watch
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition(function (position) {
-                var latitude = position.coords.latitude.toFixed(6);
-                var longitude = position.coords.longitude.toFixed(6);
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
 
-                // Show live lat/long
-                document.getElementById("latlong").innerText = 
-                    "Lat: " + latitude + " , Lng: " + longitude;
+                // Update live lat/lng on screen
+                locationDisplay.innerText = `📍 Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
 
-                // Example: check with reference location
-                const refLatArray = [26.2708944];
-                const refLongArray = [73.040275];
+                // Reference location (your compass screenshot)
+                const refLatArray = [26.2708833]; // 26°16'15.18"
+                const refLongArray = [73.0402667]; // 73°2'24.96"
 
-                for (let i = 0; i < 1; i++) {
+                for (let i = 0; i < refLatArray.length; i++) {
                     const refLat = refLatArray[i];
                     const refLong = refLongArray[i];
                     const modelID = 'model' + (i + 1);
 
-                    if (Math.abs(latitude - refLat) < 0.00009 &&
-                        Math.abs(longitude - refLong) < 0.00009) {
+                    if (Math.abs(latitude - refLat) < 0.00009 && Math.abs(longitude - refLong) < 0.00009) {
                         setDisplay(modelID, 'block');
                     } else {
                         setDisplay(modelID, 'none');
                     }
                 }
+
             }, function (error) {
-                alert("Error getting location. Please allow GPS access.");
+                locationDisplay.innerText = "⚠️ Error: Enable GPS and reload.";
             });
         } else {
-            alert("Geolocation not available on this device.");
+            locationDisplay.innerText = "⚠️ Geolocation not available";
         }
 
         function setDisplay(modelID, propValue) {
             var div = document.getElementById(modelID);
-            if (div) div.style.display = propValue;
+            div.style.display = propValue;
         }
     </script>
 
 </body>
+
 </html>
