@@ -4,24 +4,49 @@
 <head>
     <title>3D Test</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .latlong-box {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        video {
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        model-viewer {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        
-        <div class="centered-element">
-            <video autoplay="true" id="videoElement" class="video-container">
-            </video>
-            <div id ="model" style="overflow-x: hidden;">
-                <!-- <span style="position: absolute; text-align: center; font-size: 100px; line-height: 100px; left: 50%; transform: translateX(-50%);">Background<br>is visible<br>through<br>transparent<br>objects.</span> -->
-                <model-viewer id="model1" class="modelviewer" camera-controls touch-action="pan-y" src="/WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
-                <!-- <model-viewer id="model2" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
-                <model-viewer id="model3" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
-                <model-viewer id="model4" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
-                <model-viewer id="model5" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer>
-                <model-viewer id="model6" class="modelviewer" camera-controls touch-action="pan-y" src="WaterBottle.glb" tone-mapping="commerce" ar alt="{Please wait while the model is loading...}" style="background-color: unset;"></model-viewer> -->
-            </div>
-        </div>
+    <div class="latlong-box" id="latlong">Lat: -- , Lng: --</div>
+
+    <video autoplay playsinline id="videoElement"></video>
+
+    <div id="model">
+        <model-viewer id="model1" class="modelviewer" 
+            camera-controls 
+            touch-action="pan-y" 
+            src="/WaterBottle.glb" 
+            tone-mapping="commerce" 
+            ar 
+            alt="Please wait while the model is loading..."
+            style="background-color: unset;">
+        </model-viewer>
     </div>
 
     <!-- Loads model-viewer for modern browsers -->
@@ -30,51 +55,62 @@
     <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
 
     <script>
-        var video = document.querySelector("#videoElement");
+        // === CAMERA (Back camera) ===
+        const video = document.querySelector("#videoElement");
 
-        if (navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia({ video: true })
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } } // back camera
+            })
             .then(function (stream) {
-              video.srcObject = stream;
+                video.srcObject = stream;
             })
             .catch(function (error) {
-              console.log("Something went wrong!");
-            });
-        }
-
-        if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition(function(position) {
-                // Success callback
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
-                console.log(latitude,longitude);
-                
-                // Do something with latitude and longitude, such as displaying on the page
-                const refLatArray = [26.2708944];
-                const refLongArray = [73.040275];
-                for(let i=0;i<1;i++){
-                    const refLat = refLatArray[i];
-                    const refLong = refLongArray[i];
-                    const modelID = 'model'+(i+1);
-                    if (Math.abs(latitude-refLat)<0.00009 && Math.abs(longitude-refLong)<0.00009) 
-                        setDisplay(modelID,'block');
-                    else setDisplay(modelID,'none');
-                }
-                
-            }, function(error) {
-                // Error callback
-                alert("Error reading your current location. Please reload and try again after giving permission!");
+                console.log("Camera error:", error);
+                alert("Camera not supported on this device/browser.");
             });
         } else {
-            alert("Geolocation services are not available on this device!");
+            alert("Camera not supported on this device/browser.");
         }
 
-        function setDisplay(modelID,propValue) {
+        // === LOCATION ===
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition(function (position) {
+                var latitude = position.coords.latitude.toFixed(6);
+                var longitude = position.coords.longitude.toFixed(6);
+
+                // Show live lat/long
+                document.getElementById("latlong").innerText = 
+                    "Lat: " + latitude + " , Lng: " + longitude;
+
+                // Example: check with reference location
+                const refLatArray = [26.2708944];
+                const refLongArray = [73.040275];
+
+                for (let i = 0; i < 1; i++) {
+                    const refLat = refLatArray[i];
+                    const refLong = refLongArray[i];
+                    const modelID = 'model' + (i + 1);
+
+                    if (Math.abs(latitude - refLat) < 0.00009 &&
+                        Math.abs(longitude - refLong) < 0.00009) {
+                        setDisplay(modelID, 'block');
+                    } else {
+                        setDisplay(modelID, 'none');
+                    }
+                }
+            }, function (error) {
+                alert("Error getting location. Please allow GPS access.");
+            });
+        } else {
+            alert("Geolocation not available on this device.");
+        }
+
+        function setDisplay(modelID, propValue) {
             var div = document.getElementById(modelID);
-            div.style.display=propValue;
+            if (div) div.style.display = propValue;
         }
     </script>
 
 </body>
-
 </html>
