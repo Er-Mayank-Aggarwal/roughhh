@@ -30,11 +30,10 @@ var video = document.querySelector("#videoElement");
         const locations = [
             {
                 name: "Location 1",
-                lat: 26.271017,
-                long: 73.034949,
+                lat: 26.2675,
+                long: 73.0350,
                 tolerance: 0.0003,
                 image: "Hints/hint 1.webp", // Add your image path
-                message: "🎉 You found 1st Hint Location!"
             },
             {
                 name: "Location 2", 
@@ -42,8 +41,14 @@ var video = document.querySelector("#videoElement");
                 long: 73.03500,
                 tolerance: 0.0003,
                 image: "Hints/hint 2.png.webp",
-                message: "🏆 Welcome to 2nd Hint Location!"
             },
+            {
+                name: "Location 3",
+                lat: 26.271017,
+                long: 73.034949,
+                tolerance: 0.0003,
+                video: "Hints/portrait.mp4", // Video instead of image
+            }
         ];
 
         // Keep original reference for backward compatibility
@@ -103,20 +108,54 @@ var video = document.querySelector("#videoElement");
 
                 // Show/hide location content
                 if (foundLocation) {
-                    // Don't show text message - only show image
+                    // Don't show text message - only show image/video
                     // document.getElementById("model1").innerText = foundLocation.message;
                     
-                    // Show image if element exists
-                    const imageElement = document.getElementById("locationImage");
-                    if (imageElement) {
-                        imageElement.src = foundLocation.image;
-                        imageElement.style.display = "block";
-                    }
-                    
-                    // Show zoom text
-                    const zoomTextElement = document.getElementById("zoomText");
-                    if (zoomTextElement) {
-                        zoomTextElement.style.display = "block";
+                    // Check if it's a video location
+                    if (foundLocation.video) {
+                        // Show video
+                        const videoElement = document.getElementById("locationVideo");
+                        if (videoElement) {
+                            videoElement.src = foundLocation.video;
+                            videoElement.style.display = "block";
+                            
+                            // Play video once and freeze on last frame
+                            videoElement.loop = false; // Don't loop
+                            videoElement.muted = true; // Keep muted
+                            videoElement.play();
+                            
+                            // When video ends, freeze on last frame
+                            videoElement.onended = function() {
+                                // Video stays visible and frozen on last frame
+                                // No action needed - video element keeps showing last frame
+                            };
+                        }
+                        
+                        // Hide image if it was previously shown
+                        const imageElement = document.getElementById("locationImage");
+                        if (imageElement) {
+                            imageElement.style.display = "none";
+                        }
+                    } else {
+                        // Show image (for locations 1 and 2)
+                        const imageElement = document.getElementById("locationImage");
+                        if (imageElement) {
+                            imageElement.src = foundLocation.image;
+                            imageElement.style.display = "block";
+                        }
+                        
+                        // Hide video if it was previously shown
+                        const videoElement = document.getElementById("locationVideo");
+                        if (videoElement) {
+                            videoElement.style.display = "none";
+                            videoElement.pause();
+                        }
+                        
+                        // Show zoom text only for images
+                        const zoomTextElement = document.getElementById("zoomText");
+                        if (zoomTextElement) {
+                            zoomTextElement.style.display = "block";
+                        }
                     }
                     
                     // Don't show the text popup
@@ -126,7 +165,8 @@ var video = document.querySelector("#videoElement");
                         clearTimeout(timeoutID);
                         timeoutID = null;
                     }
-                } else if (document.getElementById("locationImage").style.display === "block") {
+                } else if (document.getElementById("locationImage").style.display === "block" || 
+                          document.getElementById("locationVideo").style.display === "block") {
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
                             // Don't hide text since we're not showing it
@@ -136,6 +176,14 @@ var video = document.querySelector("#videoElement");
                             const imageElement = document.getElementById("locationImage");
                             if (imageElement) {
                                 imageElement.style.display = "none";
+                            }
+                            
+                            // Hide video
+                            const videoElement = document.getElementById("locationVideo");
+                            if (videoElement) {
+                                videoElement.style.display = "none";
+                                videoElement.pause();
+                                videoElement.currentTime = 0; // Reset video to beginning
                             }
                             
                             // Hide zoom text

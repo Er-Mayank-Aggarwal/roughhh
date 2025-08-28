@@ -74,6 +74,19 @@ model-viewer {
     z-index: 9998;
 }
 
+/* Location Video */
+#locationVideo {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 90vw;
+    object-fit: contain;
+    z-index: 9998;
+}
+
 /* Zoom text below image */
 #zoomText {
     display: none;
