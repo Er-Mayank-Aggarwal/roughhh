@@ -68,7 +68,7 @@ model-viewer {
     display: none;
     position: fixed;
     top: 50%;
-    left: 50%;
+    left: 40%;
     width: 80vw;
     object-fit: cover;
     z-index: 9998;
