@@ -71,7 +71,6 @@ model-viewer {
     left: 50%;
     transform: translate(-50%, -50%);
     min-width: 80vw;
-    height: 50vh;
     z-index: 9998;
 }
 
