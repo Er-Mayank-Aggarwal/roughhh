@@ -33,7 +33,7 @@ var video = document.querySelector("#videoElement");
                 lat: 26.271017,
                 long: 73.034949,
                 tolerance: 0.0003,
-                image: "Hints/hint 1.png", // Add your image path
+                image: "Hints/hint 1.webp", // Add your image path
                 message: "🎉 You found 1st Hint Location!"
             },
             {
@@ -41,7 +41,7 @@ var video = document.querySelector("#videoElement");
                 lat: 26.27100, // Different coordinates
                 long: 73.03500,
                 tolerance: 0.0003,
-                image: "Hints/hint 2.png.jpg",
+                image: "Hints/hint 2.png.webp",
                 message: "🏆 Welcome to 2nd Hint Location!"
             },
         ];
