@@ -81,7 +81,7 @@ model-viewer {
     top: calc(50% + 45vw + 15px);
     left: 50%;
     transform: translateX(-50%);
-    font-size: 3rem;
+    font-size: 8rem;
     font-weight: bold;
     color: white;
     text-shadow: 3px 3px 6px black;
