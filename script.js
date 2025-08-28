@@ -40,7 +40,7 @@ var video = document.querySelector("#videoElement");
                 lat: 26.268889, // Different coordinates
                 long: 73.035556,
                 tolerance: 0.0003,
-                image: "Hints/hint 2.png.webp",
+                image: "Hints/hint 2.webp",
             },
             {
                 name: "Location 3",
@@ -110,6 +110,8 @@ var video = document.querySelector("#videoElement");
 
                 // Show/hide location content
                 if (foundLocation) {
+                    console.log("Found location:", foundLocation.name, "Type:", foundLocation.image ? "Image" : "Video");
+                    
                     // Don't show text message - only show image/video
                     // document.getElementById("model1").innerText = foundLocation.message;
                     
@@ -154,18 +156,30 @@ var video = document.querySelector("#videoElement");
                         // Show image (for locations 1 and 2)
                         const imageElement = document.getElementById("locationImage");
                         if (imageElement) {
+                            console.log("Loading image:", foundLocation.image); // Debug log
+                            
                             // Always update the src and show the image
                             imageElement.src = foundLocation.image;
                             imageElement.style.display = "block";
                             
-                            // Force image to load if it's not already loaded
-                            if (imageElement.complete) {
+                            // Add error handling for image loading
+                            imageElement.onerror = function() {
+                                console.error("Failed to load image:", foundLocation.image);
+                                console.error("Make sure the file exists in the correct path");
+                            };
+                            
+                            imageElement.onload = function() {
+                                console.log("Image loaded successfully:", foundLocation.image);
                                 imageElement.style.display = "block";
-                            } else {
-                                imageElement.onload = function() {
-                                    imageElement.style.display = "block";
-                                };
+                            };
+                            
+                            // Force image to load if it's already cached
+                            if (imageElement.complete && imageElement.naturalWidth > 0) {
+                                console.log("Image already loaded:", foundLocation.image);
+                                imageElement.style.display = "block";
                             }
+                        } else {
+                            console.error("Image element not found in DOM");
                         }
                         
                         // Hide video if it was previously shown
