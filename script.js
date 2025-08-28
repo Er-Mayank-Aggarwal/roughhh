@@ -32,7 +32,7 @@ var video = document.querySelector("#videoElement");
                 name: "Location 1",
                 lat: 26.271017,
                 long: 73.034949,
-                tolerance: 0.03,
+                tolerance: 0.0003,
                 image: "Hints/hint 1.png", // Add your image path
                 message: "🎉 You found 1st Hint Location!"
             },
