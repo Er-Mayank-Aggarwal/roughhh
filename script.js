@@ -57,6 +57,7 @@ var video = document.querySelector("#videoElement");
         const tolerance = 0.0002;
 
         let timeoutID = null;
+        let currentlyPlayingVideo = false; // Flag to prevent video restart
 
         if ("geolocation" in navigator) {
             // Options for geolocation
@@ -119,16 +120,21 @@ var video = document.querySelector("#videoElement");
                             videoElement.src = foundLocation.video;
                             videoElement.style.display = "block";
                             
-                            // Play video once and freeze on last frame
-                            videoElement.loop = false; // Don't loop
-                            videoElement.muted = true; // Keep muted
-                            videoElement.play();
-                            
-                            // When video ends, freeze on last frame
-                            videoElement.onended = function() {
-                                // Video stays visible and frozen on last frame
-                                // No action needed - video element keeps showing last frame
-                            };
+                            // Only play if not already playing
+                            if (!currentlyPlayingVideo) {
+                                currentlyPlayingVideo = true;
+                                
+                                // Play video once and freeze on last frame
+                                videoElement.loop = false; // Don't loop
+                                videoElement.muted = true; // Keep muted
+                                videoElement.play();
+                                
+                                // When video ends, freeze on last frame
+                                videoElement.onended = function() {
+                                    // Video stays visible and frozen on last frame
+                                    // No action needed - video element keeps showing last frame
+                                };
+                            }
                         }
                         
                         // Hide image if it was previously shown
@@ -149,6 +155,7 @@ var video = document.querySelector("#videoElement");
                         if (videoElement) {
                             videoElement.style.display = "none";
                             videoElement.pause();
+                            currentlyPlayingVideo = false; // Reset flag
                         }
                     }
                     
@@ -178,6 +185,7 @@ var video = document.querySelector("#videoElement");
                                 videoElement.style.display = "none";
                                 videoElement.pause();
                                 videoElement.currentTime = 0; // Reset video to beginning
+                                currentlyPlayingVideo = false; // Reset flag
                             }
                             
                             timeoutID = null;
