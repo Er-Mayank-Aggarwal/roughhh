@@ -82,7 +82,7 @@
 
         const refLat = 26.2703;
         const refLong = 73.0344;
-        const limit = 1 / 720; // ~0.0014° (~100m)
+        const limit = 0.009; // Updated tolerance (~1 km)
 
         const latMin = refLat - limit;
         const latMax = refLat + limit;
@@ -101,28 +101,24 @@
 
                 document.getElementById("coords").innerText =
                     "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6) +
-                    "\nRange → Lat: " + latMin.toFixed(4) + " – " + latMax.toFixed(4) +
-                    " | Long: " + lonMin.toFixed(4) + " – " + lonMax.toFixed(4);
+                    "\nRange → Lat: " + latMin.toFixed(6) + " – " + latMax.toFixed(6) +
+                    " | Long: " + lonMin.toFixed(6) + " – " + lonMax.toFixed(6);
 
                 const inRange = latitude >= latMin && latitude <= latMax &&
                     longitude >= lonMin && longitude <= lonMax;
 
                 if (inRange) {
-                    // Show message immediately
                     setDisplay("model1", "block");
-
-                    // Clear any previous timeout
                     if (timeoutID) {
                         clearTimeout(timeoutID);
                         timeoutID = null;
                     }
                 } else if (!inRange && document.getElementById("model1").style.display === "block") {
-                    // Hide message after 5 seconds
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
                             setDisplay("model1", "none");
                             timeoutID = null;
-                        }, 5000);
+                        }, 5000); // 5-second tolerance
                     }
                 }
 
