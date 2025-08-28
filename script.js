@@ -117,8 +117,12 @@ var video = document.querySelector("#videoElement");
                         // Show video
                         const videoElement = document.getElementById("locationVideo");
                         if (videoElement) {
-                            // Only set src and play if not already playing
-                            if (!currentlyPlayingVideo) {
+                            // Check if this is a new video or if video needs to be restarted
+                            const needsToPlay = !currentlyPlayingVideo || 
+                                              videoElement.src !== foundLocation.video ||
+                                              videoElement.style.display === "none";
+                            
+                            if (needsToPlay) {
                                 videoElement.src = foundLocation.video;
                                 videoElement.style.display = "block";
                                 currentlyPlayingVideo = true;
@@ -148,8 +152,18 @@ var video = document.querySelector("#videoElement");
                         // Show image (for locations 1 and 2)
                         const imageElement = document.getElementById("locationImage");
                         if (imageElement) {
+                            // Always update the src and show the image
                             imageElement.src = foundLocation.image;
                             imageElement.style.display = "block";
+                            
+                            // Force image to load if it's not already loaded
+                            if (imageElement.complete) {
+                                imageElement.style.display = "block";
+                            } else {
+                                imageElement.onload = function() {
+                                    imageElement.style.display = "block";
+                                };
+                            }
                         }
                         
                         // Hide video if it was previously shown
@@ -157,7 +171,8 @@ var video = document.querySelector("#videoElement");
                         if (videoElement) {
                             videoElement.style.display = "none";
                             videoElement.pause();
-                            // Don't reset currentlyPlayingVideo flag here - keep it for switching between locations
+                            // Reset video flag when switching to image locations
+                            currentlyPlayingVideo = false;
                         }
                     }
                     
