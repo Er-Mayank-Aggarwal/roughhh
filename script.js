@@ -30,8 +30,8 @@ var video = document.querySelector("#videoElement");
         const locations = [
             {
                 name: "Location 1",
-                lat: 26.2675,
-                long: 73.0350,
+                lat: 26.271017,
+                long: 73.034949,
                 tolerance: 0.0003,
                 image: "Hints/hint 1.webp", // Add your image path
             },
@@ -44,10 +44,10 @@ var video = document.querySelector("#videoElement");
             },
             {
                 name: "Location 3",
-                lat: 26.271017,
-                long: 73.034949,
+                // lat: 26.271017,
+                // long: 73.034949,
                 tolerance: 0.0003,
-                video: "Hints/portrait.mp4", // Video instead of image
+                video: "Hints/Portrait.mp4", // Video instead of image
             }
         ];
 
