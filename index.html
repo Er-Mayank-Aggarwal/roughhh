@@ -90,14 +90,13 @@
         const refLat = 26.27054;
         const refLong = 73.03468;
 
-        // 5-meter tolerance in degrees
-        const latTolerance = 5 * 0.000009;      // ~0.000045°
-        const lonTolerance = 5 * 0.00001006;    // ~0.0000503°
+        // Tolerance set to 0.0003°
+        const tolerance = 0.0003;
 
-        const latMin = refLat - latTolerance;
-        const latMax = refLat + latTolerance;
-        const lonMin = refLong - lonTolerance;
-        const lonMax = refLong + lonTolerance;
+        const latMin = refLat - tolerance;
+        const latMax = refLat + tolerance;
+        const lonMin = refLong - tolerance;
+        const lonMax = refLong + tolerance;
 
         let timeoutID = null;
 
