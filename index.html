@@ -17,10 +17,9 @@
             padding: 8px 15px;
             border-radius: 10px;
             text-align: center;
-            white-space: pre-line; /* ✅ Allows line breaks */
+            white-space: pre-line;
         }
 
-        /* ✅ Coordinates overlay inside video */
         .video-overlay {
             position: absolute;
             top: 15px;
@@ -43,31 +42,27 @@
             max-width: 600px;
             border-radius: 10px;
         }
+
+        #model1 {
+            display: none;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: lime;
+            text-shadow: 2px 2px 6px black;
+            margin-top: 200px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Camera feed -->
         <video autoplay="true" id="videoElement" class="video-container"></video>
 
-        <!-- ✅ Overlay live coordinates inside video -->
         <div id="videoCoords" class="video-overlay">Lat: -- , Long: --</div>
 
         <div id="model" style="overflow-x: hidden; position: relative;">
-
-            <!-- 🎉 Message instead of 3D model -->
-            <div id="model1" style="display:none; 
-                text-align:center;
-                font-size:32px;
-                font-weight:bold;
-                color:lime;
-                text-shadow:2px 2px 6px black;
-                margin-top: 200px;">
-                🎉 You got it!
-            </div>
-
-            <!-- Live coordinates + range at bottom -->
+            <div id="model1">🎉 You got it!</div>
             <div id="coords" class="coords">Lat: -- , Long: --</div>
         </div>
     </div>
@@ -75,63 +70,72 @@
     <script>
         var video = document.querySelector("#videoElement");
 
-        // Camera stream
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function (stream) {
                     video.srcObject = stream;
                 })
                 .catch(function (error) {
-                    console.log("Something went wrong!");
+                    console.log("Something went wrong with camera!");
                 });
         }
 
-        // Reference point (26°16′14″N, 73°2′4″E in decimal)
         const refLat = 26.2703;
-        const refLong = 73.0344
-        const limit = 1 / 720; // ~0.0014° (about 100m)
+        const refLong = 73.0344;
+        const limit = 1 / 720; // ~0.0014° (~100m)
 
         const latMin = refLat - limit;
         const latMax = refLat + limit;
         const lonMin = refLong - limit;
         const lonMax = refLong + limit;
 
-        // Geolocation
+        let timeoutID = null;
+
         if ("geolocation" in navigator) {
             navigator.geolocation.watchPosition(function (position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
 
-                // ✅ Show live lat/long in video overlay
                 document.getElementById("videoCoords").innerText =
                     "Lat: " + latitude.toFixed(6) + "\nLong: " + longitude.toFixed(6);
 
-                // ✅ Also show bottom range
                 document.getElementById("coords").innerText =
                     "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6) +
                     "\nRange → Lat: " + latMin.toFixed(4) + " – " + latMax.toFixed(4) +
                     " | Long: " + lonMin.toFixed(4) + " – " + lonMax.toFixed(4);
 
-                // Toggle message visibility
-                if (latitude >= latMin && latitude <= latMax &&
-                    longitude >= lonMin && longitude <= lonMax) {
+                const inRange = latitude >= latMin && latitude <= latMax &&
+                    longitude >= lonMin && longitude <= lonMax;
+
+                if (inRange) {
+                    // Show message immediately
                     setDisplay("model1", "block");
-                } else {
-                    setDisplay("model1", "none");
+
+                    // Clear any previous timeout
+                    if (timeoutID) {
+                        clearTimeout(timeoutID);
+                        timeoutID = null;
+                    }
+                } else if (!inRange && document.getElementById("model1").style.display === "block") {
+                    // Hide message after 5 seconds
+                    if (!timeoutID) {
+                        timeoutID = setTimeout(() => {
+                            setDisplay("model1", "none");
+                            timeoutID = null;
+                        }, 5000);
+                    }
                 }
 
             }, function (error) {
-                alert("Error reading your current location. Please reload and try again after giving permission!");
+                alert("Error reading your current location. Please reload and give permission!");
             });
         } else {
             alert("Geolocation services are not available on this device!");
         }
 
         function setDisplay(modelID, propValue) {
-            var div = document.getElementById(modelID);
-            div.style.display = propValue;
+            document.getElementById(modelID).style.display = propValue;
         }
     </script>
-
 </body>
 </html>
