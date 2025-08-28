@@ -113,6 +113,12 @@ var video = document.querySelector("#videoElement");
                         imageElement.style.display = "block";
                     }
                     
+                    // Show zoom text
+                    const zoomTextElement = document.getElementById("zoomText");
+                    if (zoomTextElement) {
+                        zoomTextElement.style.display = "block";
+                    }
+                    
                     // Don't show the text popup
                     // document.getElementById("model1").style.display = "block";
                     
@@ -130,6 +136,12 @@ var video = document.querySelector("#videoElement");
                             const imageElement = document.getElementById("locationImage");
                             if (imageElement) {
                                 imageElement.style.display = "none";
+                            }
+                            
+                            // Hide zoom text
+                            const zoomTextElement = document.getElementById("zoomText");
+                            if (zoomTextElement) {
+                                zoomTextElement.style.display = "none";
                             }
                             
                             timeoutID = null;

@@ -1,8 +1,33 @@
 html, body {
     height: 100vh;
     width: 100vw;
-    margin: 0;
-    padding: 0;
+    margin: /* Location Image */
+#locationImage {
+    display: none;
+    position: fixed;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 80vw;
+    height: 80vw;
+    object-fit: contain;
+    z-index: 9998;
+}
+
+/* Zoom text below image */
+#zoomText {
+    display: none;
+    position: fixed;
+    top: calc(60% + 40vw + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px black;
+    text-align: center;
+    z-index: 9999;
+}ing: 0;
     font-family: Arial, sans-serif;
     overflow: hidden;
 }
@@ -74,6 +99,21 @@ model-viewer {
     height: 50vh;
     object-fit: contain;
     z-index: 9998;
+}
+
+/* Zoom text below image */
+#zoomText {
+    display: none;
+    position: fixed;
+    top: calc(40% + 25vh + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px black;
+    text-align: center;
+    z-index: 9999;
 }
 
 /* Overlay coordinates at bottom */
