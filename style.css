@@ -78,7 +78,7 @@ model-viewer {
 #zoomText {
     display: none;
     position: fixed;
-    top: 70%;
+    top: 60%;
     left: 50%;
     transform: translateX(-50%);
     font-size: 4rem;
