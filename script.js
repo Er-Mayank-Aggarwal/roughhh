@@ -117,11 +117,10 @@ var video = document.querySelector("#videoElement");
                         // Show video
                         const videoElement = document.getElementById("locationVideo");
                         if (videoElement) {
-                            videoElement.src = foundLocation.video;
-                            videoElement.style.display = "block";
-                            
-                            // Only play if not already playing
+                            // Only set src and play if not already playing
                             if (!currentlyPlayingVideo) {
+                                videoElement.src = foundLocation.video;
+                                videoElement.style.display = "block";
                                 currentlyPlayingVideo = true;
                                 
                                 // Play video once and freeze on last frame
@@ -134,6 +133,9 @@ var video = document.querySelector("#videoElement");
                                     videoElement.pause(); // Stop the video
                                     // Video stays visible showing the last frame
                                 };
+                            } else {
+                                // Video is already playing/played, just ensure it's visible
+                                videoElement.style.display = "block";
                             }
                         }
                         
