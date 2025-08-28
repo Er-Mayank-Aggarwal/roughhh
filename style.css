@@ -72,7 +72,7 @@ model-viewer {
     transform: translate(-50%, -50%);
     min-width: 80vw;
     height: 50vh;
-    object-fit: inherit;
+    object-fit: contain;
     z-index: 9998;
 }
 
