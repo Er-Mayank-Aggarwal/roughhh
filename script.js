@@ -26,17 +26,30 @@ var video = document.querySelector("#videoElement");
                 });
         }
 
-        // Reference point
+        // Define multiple locations with their images
+        const locations = [
+            {
+                name: "Location 1",
+                lat: 26.271017,
+                long: 73.034949,
+                tolerance: 0.0002,
+                image: "Hints/hint 1.png", // Add your image path
+                message: "🎉 You found 1st Hint Location!"
+            },
+            {
+                name: "Location 2", 
+                lat: 26.27100, // Different coordinates
+                long: 73.03500,
+                tolerance: 0.0001,
+                image: "Hints/hint 2.png.jpg",
+                message: "🏆 Welcome to 2nd Hint Location!"
+            },
+        ];
+
+        // Keep original reference for backward compatibility
         const refLat = 26.27054;
         const refLong = 73.03468;
-
-        // Tolerance set to 0.0002°
         const tolerance = 0.0002;
-
-        const latMin = refLat - tolerance;
-        const latMax = refLat + tolerance;
-        const lonMin = refLong - tolerance;
-        const lonMax = refLong + tolerance;
 
         let timeoutID = null;
 
@@ -55,24 +68,68 @@ var video = document.querySelector("#videoElement");
                 document.getElementById("videoCoords").innerText =
                     "Lat: " + latitude.toFixed(6) + "\nLong: " + longitude.toFixed(6);
 
-                document.getElementById("coords").innerText =
-                    "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6) +
-                    "\nRange → Lat: " + latMin.toFixed(6) + " – " + latMax.toFixed(6) +
-                    " | Long: " + lonMin.toFixed(6) + " – " + lonMax.toFixed(6);
+                // Check each location
+                let foundLocation = null;
+                
+                for (let location of locations) {
+                    const latMin = location.lat - location.tolerance;
+                    const latMax = location.lat + location.tolerance;
+                    const lonMin = location.long - location.tolerance;
+                    const lonMax = location.long + location.tolerance;
+                    
+                    const inRange = latitude >= latMin && latitude <= latMax &&
+                                    longitude >= lonMin && longitude <= lonMax;
+                    
+                    if (inRange) {
+                        foundLocation = location;
+                        break; // Stop at first match
+                    }
+                }
 
-                const inRange = latitude >= latMin && latitude <= latMax &&
-                                longitude >= lonMin && longitude <= lonMax;
+                // Update coordinates display with range info
+                let coordsText = "Lat: " + latitude.toFixed(6) + " , Long: " + longitude.toFixed(6);
+                if (foundLocation) {
+                    const latMin = foundLocation.lat - foundLocation.tolerance;
+                    const latMax = foundLocation.lat + foundLocation.tolerance;
+                    const lonMin = foundLocation.long - foundLocation.tolerance;
+                    const lonMax = foundLocation.long + foundLocation.tolerance;
+                    
+                    coordsText += "\n🎯 " + foundLocation.name + " Range:" +
+                                  "\nLat: " + latMin.toFixed(6) + " – " + latMax.toFixed(6) +
+                                  " | Long: " + lonMin.toFixed(6) + " – " + lonMax.toFixed(6);
+                }
+                
+                document.getElementById("coords").innerText = coordsText;
 
-                if (inRange) {
+                // Show/hide location content
+                if (foundLocation) {
+                    // Update message
+                    document.getElementById("model1").innerText = foundLocation.message;
+                    
+                    // Show image if element exists
+                    const imageElement = document.getElementById("locationImage");
+                    if (imageElement) {
+                        imageElement.src = foundLocation.image;
+                        imageElement.style.display = "block";
+                    }
+                    
                     document.getElementById("model1").style.display = "block";
+                    
                     if (timeoutID) {
                         clearTimeout(timeoutID);
                         timeoutID = null;
                     }
-                } else if (!inRange && document.getElementById("model1").style.display === "block") {
+                } else if (document.getElementById("model1").style.display === "block") {
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
                             document.getElementById("model1").style.display = "none";
+                            
+                            // Hide image
+                            const imageElement = document.getElementById("locationImage");
+                            if (imageElement) {
+                                imageElement.style.display = "none";
+                            }
+                            
                             timeoutID = null;
                         }, 5000); // 5-second tolerance
                     }

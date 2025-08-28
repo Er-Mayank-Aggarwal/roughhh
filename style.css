@@ -63,6 +63,21 @@ model-viewer {
     z-index: 9999; /* on top of all elements */
 }
 
+/* Location Image */
+#locationImage {
+    display: none;
+    position: fixed;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 15px;
+    border: 3px solid lime;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    z-index: 9998;
+}
+
 /* Overlay coordinates at bottom */
 .coords {
     position: absolute;
