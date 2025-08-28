@@ -103,8 +103,8 @@ var video = document.querySelector("#videoElement");
 
                 // Show/hide location content
                 if (foundLocation) {
-                    // Update message
-                    document.getElementById("model1").innerText = foundLocation.message;
+                    // Don't show text message - only show image
+                    // document.getElementById("model1").innerText = foundLocation.message;
                     
                     // Show image if element exists
                     const imageElement = document.getElementById("locationImage");
@@ -113,16 +113,18 @@ var video = document.querySelector("#videoElement");
                         imageElement.style.display = "block";
                     }
                     
-                    document.getElementById("model1").style.display = "block";
+                    // Don't show the text popup
+                    // document.getElementById("model1").style.display = "block";
                     
                     if (timeoutID) {
                         clearTimeout(timeoutID);
                         timeoutID = null;
                     }
-                } else if (document.getElementById("model1").style.display === "block") {
+                } else if (document.getElementById("locationImage").style.display === "block") {
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
-                            document.getElementById("model1").style.display = "none";
+                            // Don't hide text since we're not showing it
+                            // document.getElementById("model1").style.display = "none";
                             
                             // Hide image
                             const imageElement = document.getElementById("locationImage");
