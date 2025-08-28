@@ -70,7 +70,7 @@ model-viewer {
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    min-width: 80vw;
+    width: 80vw;
     height: 50vh;
     object-fit: contain;
     z-index: 9998;
