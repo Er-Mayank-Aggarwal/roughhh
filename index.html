@@ -25,18 +25,21 @@
 <body>
     <div class="container">
         <div class="centered-element">
+            <!-- Camera feed -->
             <video autoplay="true" id="videoElement" class="video-container"></video>
 
             <div id="model" style="overflow-x: hidden; position: relative;">
-                <!-- The 3D model -->
-                <model-viewer id="model1" class="modelviewer"
-                    camera-controls touch-action="pan-y"
-                    src="/WaterBottle.glb"
-                    tone-mapping="commerce"
-                    ar
-                    alt="Please wait while the model is loading..."
-                    style="background-color: unset; width:100%; height:500px;">
-                </model-viewer>
+                
+                <!-- 🎉 Message instead of 3D model -->
+                <div id="model1" style="display:none; 
+                    text-align:center;
+                    font-size:32px;
+                    font-weight:bold;
+                    color:lime;
+                    text-shadow:2px 2px 6px black;
+                    margin-top: 200px;">
+                    🎉 You got it!
+                </div>
 
                 <!-- Overlay text -->
                 <span style="
@@ -60,11 +63,6 @@
         </div>
     </div>
 
-    <!-- Loads model-viewer for modern browsers -->
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.js"></script>
-    <!-- Loads model-viewer for older browsers -->
-    <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
-
     <script>
         var video = document.querySelector("#videoElement");
 
@@ -79,10 +77,10 @@
                 });
         }
 
-        // Reference point (26°16′15″N, 73°1′41″E in decimal)
+        // Reference point (26°16′14″N, 73°2′4″E in decimal)
         const refLat = 26.2706;
         const refLong = 73.0344;
-        const limit = 1 / 720; // 1 minute = 0.0167°
+        const limit = 1 / 720; // ~0.0014° (about 100m)
 
         const latMin = refLat - limit;
         const latMax = refLat + limit;
@@ -101,7 +99,7 @@
                     "\nRange → Lat: " + latMin.toFixed(4) + " – " + latMax.toFixed(4) +
                     " | Long: " + lonMin.toFixed(4) + " – " + lonMax.toFixed(4);
 
-                // Toggle model visibility
+                // Toggle message visibility
                 if (latitude >= latMin && latitude <= latMax &&
                     longitude >= lonMin && longitude <= lonMax) {
                     setDisplay("model1", "block");
