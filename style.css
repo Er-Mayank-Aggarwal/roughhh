@@ -67,10 +67,9 @@ model-viewer {
 #locationImage {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 50%;
+    left: 50%;
+    width: 80vw;
     object-fit: cover;
     z-index: 9998;
 }
