@@ -38,8 +38,7 @@ var video = document.querySelector("#videoElement");
             {
                 name: "Location 2", 
                 lat: 26.2675, // Different coordinates
-                long: 73.035
-,
+                long: 73.035,
                 tolerance: 0.0003,
                 image: "Hints/hint 2.png.webp",
             },
