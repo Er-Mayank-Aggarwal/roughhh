@@ -89,20 +89,6 @@ model-viewer {
     z-index: 9998;
 }
 
-/* Zoom text below image */
-#zoomText {
-    display: none;
-    position: fixed;
-    top: 60%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 4rem;
-    font-weight: bold;
-    color: white;
-    text-shadow: 3px 3px 6px black;
-    text-align: center;
-    z-index: 9999;
-}
 
 /* Overlay coordinates at bottom */
 .coords {

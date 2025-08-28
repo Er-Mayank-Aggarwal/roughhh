@@ -30,15 +30,16 @@ var video = document.querySelector("#videoElement");
         const locations = [
             {
                 name: "Location 1",
-                lat: 26.271017,
-                long: 73.034949,
+                lat: 26.2675,
+                long: 73.0350,
                 tolerance: 0.0003,
                 image: "Hints/hint 1.webp", // Add your image path
             },
             {
                 name: "Location 2", 
-                lat: 26.27100, // Different coordinates
-                long: 73.03500,
+                lat: 26.2675, // Different coordinates
+                long: 73.035
+,
                 tolerance: 0.0003,
                 image: "Hints/hint 2.png.webp",
             },
