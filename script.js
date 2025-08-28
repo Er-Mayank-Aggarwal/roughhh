@@ -31,21 +31,21 @@ var video = document.querySelector("#videoElement");
             {
                 name: "Location 1",
                 lat: 26.2675,
-                long: 73.0350,
+                long: 73.035000,
                 tolerance: 0.0003,
                 image: "Hints/hint 1.webp", // Add your image path
             },
             {
                 name: "Location 2", 
-                lat: 26.2675, // Different coordinates
-                long: 73.035,
+                lat: 26.268889, // Different coordinates
+                long: 73.035556,
                 tolerance: 0.0003,
                 image: "Hints/hint 2.png.webp",
             },
             {
                 name: "Location 3",
-                lat: 26.2675,
-                long: 73.035,
+                lat: 26.269445,
+                long: 73.035556,
                 tolerance: 0.0003,
                 video: "Hints/Portrait.mp4", // Video instead of image
             }
