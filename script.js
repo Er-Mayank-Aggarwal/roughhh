@@ -30,11 +30,8 @@ var video = document.querySelector("#videoElement");
         const locations = [
             {
                 name: "Location 1",
-                lat: 26.271017,
-                long: 73.034949,
-
-                // lat: 26.2675,
-                // long: 73.0350,
+                lat: 26.2675,
+                long: 73.0350,
                 tolerance: 0.0003,
                 image: "Hints/hint 1.webp", // Add your image path
             },
@@ -47,8 +44,8 @@ var video = document.querySelector("#videoElement");
             },
             {
                 name: "Location 3",
-                // lat: 26.271017,
-                // long: 73.034949,
+                lat: 26.271017,
+                long: 73.034949,
                 tolerance: 0.0003,
                 video: "Hints/Portrait.mp4", // Video instead of image
             }
@@ -160,7 +157,7 @@ var video = document.querySelector("#videoElement");
                         if (videoElement) {
                             videoElement.style.display = "none";
                             videoElement.pause();
-                            currentlyPlayingVideo = false; // Reset flag
+                            // Don't reset currentlyPlayingVideo flag here - keep it for switching between locations
                         }
                     }
                     
@@ -171,17 +168,25 @@ var video = document.querySelector("#videoElement");
                         clearTimeout(timeoutID);
                         timeoutID = null;
                     }
-                } else if (document.getElementById("locationImage").style.display === "block") {
-                    // User has left the location area - start timeout to hide content (images only)
+                } else if (document.getElementById("locationImage").style.display === "block" || 
+                          document.getElementById("locationVideo").style.display === "block") {
+                    // User has left the location area - start timeout to hide content
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
-                            // Hide image only
+                            // Hide image
                             const imageElement = document.getElementById("locationImage");
                             if (imageElement) {
                                 imageElement.style.display = "none";
                             }
                             
-                            // Don't hide video - let it stay visible permanently
+                            // Hide video
+                            const videoElement = document.getElementById("locationVideo");
+                            if (videoElement) {
+                                videoElement.style.display = "none";
+                                videoElement.pause();
+                                videoElement.currentTime = 0; // Reset video to beginning
+                                currentlyPlayingVideo = false; // Reset flag so video can play again
+                            }
                             
                             timeoutID = null;
                         }, 5000); // 5-second tolerance
