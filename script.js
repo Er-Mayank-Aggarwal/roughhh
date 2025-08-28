@@ -44,8 +44,8 @@ var video = document.querySelector("#videoElement");
             },
             {
                 name: "Location 3",
-                // lat: 26.271017,
-                // long: 73.034949,
+                lat: 26.271017,
+                long: 73.034949,
                 tolerance: 0.0003,
                 video: "Hints/Portrait.mp4", // Video instead of image
             }
