@@ -70,8 +70,6 @@ model-viewer {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90vw;
-    height: 90vw;
     object-fit: contain;
     z-index: 9998;
 }
@@ -83,7 +81,7 @@ model-viewer {
     top: calc(50% + 45vw + 15px);
     left: 50%;
     transform: translateX(-50%);
-    font-size: 32px;
+    font-size: 3rem;
     font-weight: bold;
     color: white;
     text-shadow: 3px 3px 6px black;
