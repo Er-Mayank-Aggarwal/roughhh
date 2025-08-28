@@ -58,6 +58,7 @@ var video = document.querySelector("#videoElement");
 
         let timeoutID = null;
         let currentlyPlayingVideo = false; // Flag to prevent video restart
+        let lastVideoSrc = ""; // Track which video was last played
 
         if ("geolocation" in navigator) {
             // Options for geolocation
@@ -119,13 +120,14 @@ var video = document.querySelector("#videoElement");
                         if (videoElement) {
                             // Check if this is a new video or if video needs to be restarted
                             const needsToPlay = !currentlyPlayingVideo || 
-                                              videoElement.src !== foundLocation.video ||
+                                              lastVideoSrc !== foundLocation.video ||
                                               videoElement.style.display === "none";
                             
                             if (needsToPlay) {
                                 videoElement.src = foundLocation.video;
                                 videoElement.style.display = "block";
                                 currentlyPlayingVideo = true;
+                                lastVideoSrc = foundLocation.video; // Track current video
                                 
                                 // Play video once and freeze on last frame
                                 videoElement.loop = false; // Don't loop
@@ -201,6 +203,7 @@ var video = document.querySelector("#videoElement");
                                 videoElement.pause();
                                 videoElement.currentTime = 0; // Reset video to beginning
                                 currentlyPlayingVideo = false; // Reset flag so video can play again
+                                lastVideoSrc = ""; // Clear video tracking
                             }
                             
                             timeoutID = null;
