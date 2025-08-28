@@ -150,12 +150,6 @@ var video = document.querySelector("#videoElement");
                             videoElement.style.display = "none";
                             videoElement.pause();
                         }
-                        
-                        // Show zoom text only for images
-                        const zoomTextElement = document.getElementById("zoomText");
-                        if (zoomTextElement) {
-                            zoomTextElement.style.display = "block";
-                        }
                     }
                     
                     // Don't show the text popup
@@ -184,12 +178,6 @@ var video = document.querySelector("#videoElement");
                                 videoElement.style.display = "none";
                                 videoElement.pause();
                                 videoElement.currentTime = 0; // Reset video to beginning
-                            }
-                            
-                            // Hide zoom text
-                            const zoomTextElement = document.getElementById("zoomText");
-                            if (zoomTextElement) {
-                                zoomTextElement.style.display = "none";
                             }
                             
                             timeoutID = null;

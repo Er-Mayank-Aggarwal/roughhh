@@ -70,8 +70,9 @@ model-viewer {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 80vw;
+    max-height: 80vh;
     object-fit: contain;
-    min-width: 80vw;
     z-index: 9998;
 }
 
@@ -82,8 +83,8 @@ model-viewer {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90vw;
-    height: 90vw;
+    width: 80vw;
+    max-height: 80vh;
     object-fit: contain;
     z-index: 9998;
 }
