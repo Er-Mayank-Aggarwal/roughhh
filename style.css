@@ -1,37 +1,91 @@
 html, body {
     height: 100%;
     margin: 0;
-  }
-  
-  .container {
-    display: flex;
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    height: 100%;
-    width:100%;
-    position:absolute;
-  }
-  
-.centered-element {
-    height:100%;
-    width:100%;
-    background-color: #fff;
-    display: flex;
+    font-family: Arial, sans-serif;
 }
 
-.video-container{
-    height:100%;
-    margin: 0 auto;
+/* Full-screen container */
+.container {
+    display: flex;
+    align-items: center;      /* Center vertically */
+    justify-content: center;  /* Center horizontally */
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
 }
-/* The right grid contains the model and occupies 50% of the available space */
+
+/* Video and model wrapper */
+.centered-element {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    background-color: transparent; /* allow video & popup visibility */
+    position: relative;
+    z-index: 1;
+}
+
+/* Video styling */
+.video-container {
+    height: 100%;
+    width: 100%;
+    object-fit: cover; /* fill container nicely */
+    border-radius: 10px;
+    z-index: 0;
+}
+
+/* Model viewer (if used later) */
 model-viewer {
     height: 60%;
     width: 60%;
     position: absolute;
     left: 20%;
     top: 20%;
-    background:none !important;
+    background: none !important;
 }
-.modelviewer{
-    display:none;
+
+/* Popup message */
+#model1 {
+    display: none;
+    position: fixed; /* always visible on screen */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    font-weight: bold;
+    color: lime;
+    text-shadow: 2px 2px 6px black;
+    text-align: center;
+    z-index: 9999; /* on top of all elements */
+}
+
+/* Overlay coordinates at bottom */
+.coords {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: bold;
+    color: cyan;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 10px;
+    text-align: center;
+    white-space: pre-line;
+    z-index: 10;
+}
+
+/* Overlay coordinates inside video */
+.video-overlay {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    color: yellow;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 6px 10px;
+    border-radius: 8px;
+    z-index: 10;
 }
