@@ -80,8 +80,8 @@ model-viewer {
 #locationVideo {
     display: none;
     position: fixed;
-    top: 10%;
-    left: 5%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
     width: 80vw;
     max-height: 90vh;
