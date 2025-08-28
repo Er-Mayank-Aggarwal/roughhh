@@ -166,25 +166,17 @@ var video = document.querySelector("#videoElement");
                         clearTimeout(timeoutID);
                         timeoutID = null;
                     }
-                } else if (document.getElementById("locationImage").style.display === "block" || 
-                          document.getElementById("locationVideo").style.display === "block") {
-                    // User has left the location area - start timeout to hide content
+                } else if (document.getElementById("locationImage").style.display === "block") {
+                    // User has left the location area - start timeout to hide content (images only)
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
-                            // Hide image
+                            // Hide image only
                             const imageElement = document.getElementById("locationImage");
                             if (imageElement) {
                                 imageElement.style.display = "none";
                             }
                             
-                            // Hide video
-                            const videoElement = document.getElementById("locationVideo");
-                            if (videoElement) {
-                                videoElement.style.display = "none";
-                                videoElement.pause();
-                                videoElement.currentTime = 0; // Reset video to beginning
-                                currentlyPlayingVideo = false; // Reset flag
-                            }
+                            // Don't hide video - let it stay visible permanently
                             
                             timeoutID = null;
                         }, 5000); // 5-second tolerance
