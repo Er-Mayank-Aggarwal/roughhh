@@ -129,10 +129,10 @@ var video = document.querySelector("#videoElement");
                                 videoElement.muted = true; // Keep muted
                                 videoElement.play();
                                 
-                                // When video ends, freeze on last frame
+                                // When video ends, pause it
                                 videoElement.onended = function() {
-                                    // Video stays visible and frozen on last frame
-                                    // No action needed - video element keeps showing last frame
+                                    videoElement.pause(); // Stop the video
+                                    // Video stays visible showing the last frame
                                 };
                             }
                         }
@@ -168,11 +168,9 @@ var video = document.querySelector("#videoElement");
                     }
                 } else if (document.getElementById("locationImage").style.display === "block" || 
                           document.getElementById("locationVideo").style.display === "block") {
+                    // User has left the location area - start timeout to hide content
                     if (!timeoutID) {
                         timeoutID = setTimeout(() => {
-                            // Don't hide text since we're not showing it
-                            // document.getElementById("model1").style.display = "none";
-                            
                             // Hide image
                             const imageElement = document.getElementById("locationImage");
                             if (imageElement) {
@@ -190,6 +188,12 @@ var video = document.querySelector("#videoElement");
                             
                             timeoutID = null;
                         }, 5000); // 5-second tolerance
+                    }
+                } else {
+                    // User is not in any location and no content is showing - clear any existing timeout
+                    if (timeoutID) {
+                        clearTimeout(timeoutID);
+                        timeoutID = null;
                     }
                 }
 
