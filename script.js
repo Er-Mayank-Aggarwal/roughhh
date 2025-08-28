@@ -125,7 +125,7 @@ var video = document.querySelector("#videoElement");
                                 
                                 // Play video once and freeze on last frame
                                 videoElement.loop = false; // Don't loop
-                                videoElement.muted = true; // Keep muted
+                                videoElement.muted = false; // Enable sound
                                 videoElement.play();
                                 
                                 // When video ends, pause it
